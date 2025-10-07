@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 dotenv.config();
 
+import debugRoutes from './routes/debug.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import equipmentRoutes from './routes/equipment.routes.js';
 import reservationRoutes from './routes/reservation.routes.js';
@@ -13,6 +14,7 @@ export const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
+app.use('/api/_debug', debugRoutes);
 
 app.get('/', (req, res) => res.json({ ok: true, name: 'AULATECH API – estilo Unisalones' }));
 
