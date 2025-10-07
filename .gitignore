@@ -1,0 +1,17 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Environment
+.env
+.env.test
+.DS_Store
+
+# Coverage / tests
+coverage/
+.nyc_output/
+
+# System files
+Thumbs.db
