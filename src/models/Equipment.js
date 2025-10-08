@@ -9,9 +9,6 @@ Equipment.init({
   type: { type: DataTypes.STRING, allowNull: false },
   serialNumber: { type: DataTypes.STRING, allowNull: true, unique: true },
   status: { type: DataTypes.ENUM('disponible','mantenimiento','inactivo'), defaultValue: 'disponible' },
-<<<<<<< HEAD
-  location: { type: DataTypes.STRING, allowNull: true }
-=======
   location: { type: DataTypes.STRING, allowNull: true },
 
   // 🆕 Campo agregado para saber el estado físico del equipo 
@@ -21,7 +18,6 @@ Equipment.init({
     allowNull: false,
     comment: 'Condición física del equipo (agregado en mejora funcional)'
   }
->>>>>>> main
 
 }, { sequelize, modelName: 'equipment', tableName: 'equipment' });
 
