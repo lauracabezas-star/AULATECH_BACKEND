@@ -14,7 +14,7 @@ export async function createReport(req, res) {
 export async function listReports(req, res) {
   const { status } = req.query;
   const where = status ? { status } : undefined;
-  const list = await Report.findAll({ where, order: [['createdAt','DESC']] });
+  const list = await Report.findAll({ where, order: [['createdAt', 'DESC']] });
   return res.json(list);
 }
 

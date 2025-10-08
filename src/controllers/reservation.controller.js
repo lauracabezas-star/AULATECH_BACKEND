@@ -52,7 +52,10 @@ export async function createReservation(req, res) {
       status: 'confirmado'
     });
 
+<<<<<<< HEAD
+=======
     console.log('✅ Reserva creada correctamente:', created.toJSON());
+>>>>>>> main
     return res.status(201).json(created);
   } catch (e) {
     console.error('❌ Error en createReservation:', e);
@@ -61,6 +64,13 @@ export async function createReservation(req, res) {
 }
 
 export async function myReservations(req, res) {
+<<<<<<< HEAD
+  const list = await Reservation.findAll({
+    where: { userId: req.user.id },
+    order: [['date', 'DESC'], ['startTime', 'DESC']]
+  });
+  return res.json(list);
+=======
   try {
     console.log('🟢 Consultando reservas para el usuario:', req.user);
 
@@ -79,6 +89,7 @@ export async function myReservations(req, res) {
     console.error('❌ Error en myReservations:', e);
     return res.status(500).json({ error: 'Error al obtener reservas' });
   }
+>>>>>>> main
 }
 
 export async function cancelReservation(req, res) {
