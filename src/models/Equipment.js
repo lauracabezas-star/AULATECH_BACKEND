@@ -10,4 +10,5 @@ Equipment.init({
   serialNumber: { type: DataTypes.STRING, allowNull: true, unique: true },
   status: { type: DataTypes.ENUM('disponible','mantenimiento','inactivo'), defaultValue: 'disponible' },
   location: { type: DataTypes.STRING, allowNull: true }
+
 }, { sequelize, modelName: 'equipment', tableName: 'equipment' });
