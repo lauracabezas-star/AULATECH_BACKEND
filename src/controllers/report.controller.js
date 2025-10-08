@@ -3,11 +3,11 @@ import { Report } from '../models/index.js';
 export async function createReport(req, res) {
   try {
     const { equipmentId, description, photoUrl, priority } = req.body;
-    if (!equipmentId || !description) return res.status(400).json({ error: 'Faltan campos' });
+    if (!equipmentId || !description) return res.status(400).json({ error: 'faltan campos' });
     const created = await Report.create({ equipmentId, description, photoUrl, priority, userId: req.user.id });
     return res.status(201).json(created);
   } catch (e) {
-    return res.status(500).json({ error: 'Error al crear reporte' });
+    return res.status(500).json({ error: 'error al crear reporte' });
   }
 }
 
