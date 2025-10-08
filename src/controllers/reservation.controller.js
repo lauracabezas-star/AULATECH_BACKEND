@@ -25,7 +25,16 @@ export async function createReservation(req, res) {
       return res.status(409).json({ error: 'Cruce de horario detectado' });
     }
 
-    const created = await Reservation.create({ equipmentId, userId: req.user.id, date, startTime, endTime, location, status: 'confirmado' });
+    const created = await Reservation.create({
+      equipmentId,
+      userId: req.user.id,
+      date,
+      startTime,
+      endTime,
+      location,
+      status: 'confirmado'
+    });
+
     return res.status(201).json(created);
   } catch (e) {
     return res.status(500).json({ error: 'Error al crear reserva' });
@@ -33,7 +42,10 @@ export async function createReservation(req, res) {
 }
 
 export async function myReservations(req, res) {
-  const list = await Reservation.findAll({ where: { userId: req.user.id }, order: [['date','DESC'],['startTime','DESC']] });
+  const list = await Reservation.findAll({
+    where: { userId: req.user.id },
+    order: [['date', 'DESC'], ['startTime', 'DESC']]
+  });
   return res.json(list);
 }
 

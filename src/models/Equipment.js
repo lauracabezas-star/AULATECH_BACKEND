@@ -12,3 +12,4 @@ Equipment.init({
   location: { type: DataTypes.STRING, allowNull: true }
 
 }, { sequelize, modelName: 'equipment', tableName: 'equipment' });
+
