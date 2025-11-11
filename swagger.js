@@ -8,7 +8,7 @@ const doc = {
         title: 'API AULATECH',
         description: 'Esta API permite gestionar y reservar equipos audiovisuales'
     },
-    host: 'localhost:4001',
+     url: 'http://localhost:4001',
     schemes: ['http']
 }
 
