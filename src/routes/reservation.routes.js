@@ -73,8 +73,8 @@ router.patch(
   authRequired,
   [
     param('id')
-      .isInt({ min: 1 })
-      .withMessage('El id de la reserva debe ser numérico'),
+      .isUUID()
+      .withMessage("El id de la reserva debe ser un UUID válido")
   ],
   validate,
   cancelReservation
