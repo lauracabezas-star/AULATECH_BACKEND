@@ -64,14 +64,14 @@ router.patch(
   hasRole('tecnico', 'administrador'),
   [
     param('id')
-      .isInt({ min: 1 })
-      .withMessage('El id debe ser un número válido'),
+      .isUUID()
+      .withMessage('El id del reporte debe ser un UUID válido'),
 
     body('status')
-      .isIn(['pendiente', 'en_proceso', 'resuelto'])
-      .withMessage('El estado debe ser pendiente, en_proceso o resuelto')
+      .isString()
+      .isLength({ min: 3 })
+      .withMessage('El estado debe ser válido'),
   ],
-  validate,
   updateReportStatus
 );
 
