@@ -27,9 +27,10 @@ router.post(
   '/',
   authRequired,
   [
-    body('equipmentId')
-      .isInt({ min: 1 })
-      .withMessage('El equipmentId debe ser un número válido'),
+    body('equipmentId') 
+      .isUUID()
+      .withMessage('El equipmentId debe ser un UUID válido'),
+
 
     body('description')
       .trim()

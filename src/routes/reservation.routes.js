@@ -28,8 +28,8 @@ router.post(
   authRequired,
   [
     body('equipmentId')
-      .isInt({ min: 1 })
-      .withMessage('El campo equipmentId debe ser numérico'),
+      .isUUID()
+      .withMessage('El campo equipmentId debe ser un UUID válido'),
 
     body('date')
       .isISO8601()
