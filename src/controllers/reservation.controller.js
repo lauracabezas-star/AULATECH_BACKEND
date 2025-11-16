@@ -1,5 +1,6 @@
 import { Reservation, Equipment, User } from '../models/index.js';
 import { enqueueWaitlist } from '../services/waitlist.service.js';
+import { sendReservationEmail } from '../services/email.service.js';
 
 function validRange(startTime, endTime) {
   return startTime && endTime && startTime < endTime;
@@ -13,12 +14,14 @@ export async function createReservation(req, res) {
 
     if (!equipmentId || !date || !startTime || !endTime || !location)
       return res.status(400).json({ error: 'Faltan campos' });
+
     if (!validRange(startTime, endTime))
       return res.status(400).json({ error: 'Rango de horas inválido' });
 
     const equipment = await Equipment.findByPk(equipmentId);
     if (!equipment)
       return res.status(404).json({ error: 'Equipo no existe' });
+
     if (equipment.status !== 'disponible')
       return res.status(409).json({ error: 'Equipo no disponible' });
 
@@ -33,12 +36,14 @@ export async function createReservation(req, res) {
           endTime,
           location
         });
+
         console.log('🟡 Usuario agregado a lista de espera:', w.id);
         return res.status(202).json({
           message: 'Agregado a lista de espera',
           waitlist: w
         });
       }
+
       return res.status(409).json({ error: 'Cruce de horario detectado' });
     }
 
@@ -52,8 +57,15 @@ export async function createReservation(req, res) {
       status: 'confirmado'
     });
 
+    // =====================================================================================
+    // 🟦 HU03 — Enviar correo simulado al crear la reserva
+    // =====================================================================================
+    const user = await User.findByPk(req.user.id);
+    await sendReservationEmail(user, created, equipment);
+
     console.log('✅ Reserva creada correctamente:', created.toJSON());
     return res.status(201).json(created);
+
   } catch (e) {
     console.error('❌ Error en createReservation:', e);
     return res.status(500).json({ error: 'Error al crear reserva' });
@@ -75,6 +87,7 @@ export async function myReservations(req, res) {
 
     console.log(`📦 ${list.length} reservas encontradas`);
     return res.json(list);
+
   } catch (e) {
     console.error('❌ Error en myReservations:', e);
     return res.status(500).json({ error: 'Error al obtener reservas' });
@@ -85,14 +98,18 @@ export async function cancelReservation(req, res) {
   try {
     const { id } = req.params;
     const r = await Reservation.findByPk(id);
+
     if (!r)
       return res.status(404).json({ error: 'Reserva no encontrada' });
+
     if (r.userId !== req.user.id && !['administrador'].includes(req.user.role))
       return res.status(403).json({ error: 'No autorizado' });
 
     await r.update({ status: 'cancelado' });
     console.log('🟠 Reserva cancelada:', id);
+
     return res.json(r);
+
   } catch (e) {
     console.error('❌ Error en cancelReservation:', e);
     return res.status(500).json({ error: 'Error al cancelar reserva' });
