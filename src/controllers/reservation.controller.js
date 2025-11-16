@@ -61,16 +61,7 @@ export async function createReservation(req, res) {
 }
 
 export async function myReservations(req, res) {
- HEAD
-  const list = await Reservation.findAll({
-    where: { userId: req.user.id },
-    order: [['date', 'DESC'], ['startTime', 'DESC']]
-  });
-  return res.json(list);
-
   try {
-    console.log('🟢 Consultando reservas para el usuario:', req.user);
-
     const list = await Reservation.findAll({
       where: { userId: req.user.id },
       include: [
@@ -80,11 +71,9 @@ export async function myReservations(req, res) {
       order: [['date', 'DESC'], ['startTime', 'DESC']]
     });
 
-    console.log(`📦 ${list.length} reservas encontradas`);
     return res.json(list);
   } catch (e) {
-    console.error('❌ Error en myReservations:', e);
-    return res.status(500).json({ error: 'Error al obtener reservas' });
+    return res.status(500).json({ error: 'Error al obtener mis reservas' });
   }
 }
 
