@@ -12,7 +12,7 @@ afterAll(async () => {
   await sequelize.close();
 });
 
-describe("HU05 – Mis reservas", () => {
+describe("HU04 – Mis reservas", () => {
   let tokenUser1;
   let tokenUser2;
 

@@ -12,7 +12,7 @@ afterAll(async () => {
   await sequelize.close();
 });
 
-describe("HU06 – Cambiar estado del reporte", () => {
+describe("HU05 – Cambiar estado del reporte", () => {
   let tecnicoToken;
   let userToken;
   let reportId;

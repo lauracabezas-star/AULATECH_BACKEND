@@ -1,505 +1,313 @@
 {
-  "swagger": "2.0",
+  "openapi": "3.0.0",
   "info": {
-    "title": "API AULATECH",
-    "description": "Esta API permite gestionar y reservar equipos audiovisuales",
-    "version": "1.0.0"
+    "title": "AULATECH API",
+    "version": "1.0.0",
+    "description": "API para la gestión de equipos audiovisuales y reservas"
   },
-  "url": "http://localhost:4001",
-  "basePath": "/",
-  "schemes": [
-    "http"
+  "servers": [
+    {
+      "url": "http://localhost:4001",
+      "description": "Servidor local"
+    }
   ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string", "example": "Juan Pérez" },
+          "email": { "type": "string", "example": "usuario@test.com" },
+          "role": {
+            "type": "string",
+            "enum": ["estudiante", "tecnico", "administrador"],
+            "example": "estudiante"
+          }
+        }
+      },
+
+      "Equipment": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string", "example": "Cámara Sony A7III" },
+          "type": { "type": "string", "example": "video" },
+          "serialNumber": { "type": "string", "example": "SN-445ABC" },
+          "location": { "type": "string", "example": "Estudio 3" },
+          "status": {
+            "type": "string",
+            "enum": ["disponible", "mantenimiento", "ocupado"],
+            "example": "disponible"
+          }
+        }
+      },
+
+      "Reservation": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "equipmentId": { "type": "string", "format": "uuid" },
+          "date": { "type": "string", "example": "2025-01-01" },
+          "startTime": { "type": "string", "example": "08:00" },
+          "endTime": { "type": "string", "example": "10:00" },
+          "location": { "type": "string", "example": "Estudio A" },
+          "status": {
+            "type": "string",
+            "enum": ["confirmado", "cancelado"],
+            "example": "confirmado"
+          }
+        }
+      },
+
+      "Report": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "equipmentId": { "type": "string", "format": "uuid" },
+          "description": { "type": "string", "example": "La cámara no enciende" },
+          "photoUrl": { "type": "string", "example": "https://drive.google.com/photo.jpg" },
+          "priority": {
+            "type": "string",
+            "enum": ["baja", "media", "alta"],
+            "example": "alta"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pendiente", "en_proceso", "resuelto"],
+            "example": "pendiente"
+          }
+        }
+      }
+    }
+  },
+
   "paths": {
-    "/": {
-      "get": {
-        "description": "",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/_debug/whoami": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/api/_debug/reservations": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
-        }
-      }
-    },
     "/api/auth/register": {
       "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "example": "any"
-                },
-                "email": {
-                  "example": "any"
-                },
-                "password": {
-                  "example": "any"
-                },
-                "role": {
-                  "example": "any"
+        "tags": ["Auth"],
+        "summary": "Registrar usuario",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email", "password"],
+                "properties": {
+                  "name": { "type": "string" },
+                  "email": { "type": "string" },
+                  "password": { "type": "string" },
+                  "role": {
+                    "type": "string",
+                    "enum": ["estudiante", "tecnico", "administrador"]
+                  }
                 }
               }
             }
           }
-        ],
+        },
         "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "409": {
-            "description": "Conflict"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
+          "201": { "description": "Usuario registrado" },
+          "400": { "description": "Datos inválidos" },
+          "409": { "description": "Email ya existe" }
         }
       }
     },
+
     "/api/auth/login": {
       "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "email": {
-                  "example": "any"
-                },
-                "password": {
-                  "example": "any"
+        "tags": ["Auth"],
+        "summary": "Iniciar sesión",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": { "type": "string" },
+                  "password": { "type": "string" }
                 }
               }
             }
           }
-        ],
+        },
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
+          "200": { "description": "Login exitoso (token generado)" },
+          "401": { "description": "Credenciales inválidas" }
         }
       }
     },
-    "/api/equipment/": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
+
+    "/api/equipment": {
+      "post": {
+        "summary": "Crear equipo (solo administradores)",
+        "tags": ["Equipment"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Equipment" }
+            }
           }
-        ],
+        },
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
+          "201": { "description": "Equipo creado" },
+          "401": { "description": "No autenticado" },
+          "403": { "description": "No autorizado" }
         }
       },
+      "get": {
+        "summary": "Listar equipos",
+        "tags": ["Equipment"],
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": { "description": "Lista de equipos" }
+        }
+      }
+    },
+
+    "/api/reservations": {
       "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "example": "any"
-                },
-                "type": {
-                  "example": "any"
-                },
-                "serialNumber": {
-                  "example": "any"
-                },
-                "status": {
-                  "example": "any"
-                },
-                "location": {
-                  "example": "any"
+        "summary": "Crear reserva",
+        "tags": ["Reservations"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["equipmentId", "date", "startTime", "endTime", "location"],
+                "properties": {
+                  "equipmentId": { "type": "string" },
+                  "date": { "type": "string" },
+                  "startTime": { "type": "string" },
+                  "endTime": { "type": "string" },
+                  "location": { "type": "string" },
+                  "allowWaitlist": { "type": "boolean" }
                 }
               }
             }
           }
-        ],
+        },
         "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
+          "201": { "description": "Reserva creada" },
+          "202": { "description": "Agregado a lista de espera" },
+          "409": { "description": "Conflicto de horario" }
         }
       }
     },
-    "/api/equipment/{id}": {
-      "patch": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": {
-                  "example": "any"
-                },
-                "location": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/reservations/": {
-      "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "equipmentId": {
-                  "example": "any"
-                },
-                "date": {
-                  "example": "any"
-                },
-                "startTime": {
-                  "example": "any"
-                },
-                "endTime": {
-                  "example": "any"
-                },
-                "location": {
-                  "example": "any"
-                },
-                "allowWaitlist": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "202": {
-            "description": "Accepted"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "409": {
-            "description": "Conflict"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
+
     "/api/reservations/my": {
       "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
+        "summary": "Obtener reservas del usuario autenticado",
+        "tags": ["Reservations"],
+        "security": [{ "bearerAuth": [] }],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
+          "200": { "description": "Lista de reservas" }
         }
       }
     },
+
     "/api/reservations/{id}/cancel": {
       "patch": {
-        "description": "",
+        "summary": "Cancelar reserva",
+        "tags": ["Reservations"],
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
+            "schema": { "type": "string" }
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
+          "200": { "description": "Reserva cancelada" },
+          "404": { "description": "No encontrada" }
         }
       }
     },
-    "/api/reports/": {
+
+    "/api/reports": {
       "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "equipmentId": {
-                  "example": "any"
-                },
-                "description": {
-                  "example": "any"
-                },
-                "photoUrl": {
-                  "example": "any"
-                },
-                "priority": {
-                  "example": "any"
-                }
-              }
+        "summary": "Crear reporte de daño",
+        "tags": ["Reports"],
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Report" }
             }
           }
-        ],
+        },
         "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
+          "201": { "description": "Reporte creado" }
         }
       },
       "get": {
-        "description": "",
+        "summary": "Listar reportes",
+        "tags": ["Reports"],
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
           {
             "name": "status",
             "in": "query",
-            "type": "string"
+            "schema": {
+              "type": "string",
+              "enum": ["pendiente", "en_proceso", "resuelto"]
+            }
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          }
+          "200": { "description": "Lista de reportes" }
         }
       }
     },
+
     "/api/reports/{id}/status": {
       "patch": {
-        "description": "",
+        "summary": "Actualizar estado de reporte",
+        "tags": ["Reports"],
+        "security": [{ "bearerAuth": [] }],
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "status": {
-                  "example": "any"
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["pendiente", "en_proceso", "resuelto"]
+                  }
                 }
               }
             }
           }
-        ],
+        },
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
+          "200": { "description": "Estado actualizado" }
         }
       }
     }
